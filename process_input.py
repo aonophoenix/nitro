@@ -3,6 +3,8 @@
 
 # In[1]:
 
+
+#!/usr/bin/python3
 import datetime
 import os
 import sys
@@ -24,22 +26,44 @@ row1_back = pd.read_excel(io='Row1Back 18Jan18-1421.xls',
                           usecols=[0,1,2,3],
                           converters={'0':datetime,'1':np.int32,'2':np.int32,'3':np.int32})
 row1_back['location'] = 'row1_back'
-row1_back.head()
+# row1_back.head()
 
 
-# In[36]:
+# In[41]:
 
 
 treatment = pd.DataFrame({
-    'location':['p11','p12','p13'],
-    'nitrogen_treament':['','',''],
-    'irrigation_treatment':[]
+    'location':['p11','p12','p13',
+                'p21','p22','p23',
+                'p31','p32','p33',
+                'p41','p42','p43',
+                'p51','p52','p53',
+                'p61','p62','p63',
+                'p71','p72','p73',
+                'p81','p82','p83',
+                'p91','p92','p93'],
+    'nitrogen_treament':['deficient','excessive','deficient',
+                         'deficient','optimum','excessive',
+                         'optimum','optimum','excessive',
+                         'excessive','excessive','optimum',
+                         'deficient','deficient','optimum',
+                         'excessive','deficient','optimum',
+                         'optimum','excessive','deficient',
+                         'optimum','deficient','excessive',
+                         'excessive','optimum','deficient'],
+    'irrigation_treatment':['full','high','high',
+                            'low','high','low',
+                            'full','low','full',
+                            'high','low','full',
+                            'low','high','high',
+                            'full','full','low',
+                            'low','full','low',
+                            'low','high','high',
+                            'high','full','full']
 })
-treatment
 
 
-
-# In[40]:
+# In[44]:
 
 
 row1_front = pd.read_excel(io='Row1Frnt 18Jan18-1418.xls',
@@ -54,32 +78,30 @@ row1_front = pd.read_excel(io='Row1Frnt 18Jan18-1418.xls',
                                   'row1f_p5_targ', 'row1f_p5_body'],
                            usecols=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14])
 p11 = row1_front[['time', 'row1f_p1_vwc', 'row1f_p1_temp', 'row1f_p1_ec']].copy(deep=True)
-p11 = p1.rename(columns={'row1f_p1_vwc':'vwc', 'row1f_p1_temp':'temp_soil', 'row1f_p1_ec':'ec'})
+p11.rename(columns={'row1f_p1_vwc':'vwc', 'row1f_p1_temp':'temp_soil', 'row1f_p1_ec':'ec'}, inplace=True)
 p11['location'] = 'p11'
+
 p12 = row1_front[['time', 'row1f_p2_vwc', 'row1f_p2_temp', 'row1f_p2_ec']].copy(deep=True)
 p12.rename(columns={'row1f_p2_vwc':'vwc', 'row1f_p2_temp':'temp_soil', 'row1f_p2_ec':'ec'}, inplace=True)
 p12['location'] = 'p12'
+
 p13 = row1_front[['time', 'row1f_p3_vwc', 'row1f_p3_temp', 'row1f_p3_ec']].copy(deep=True)
 p13.rename(columns={'row1f_p3_vwc':'vwc', 'row1f_p3_temp':'temp_soil', 'row1f_p3_ec':'ec'}, inplace=True)
 p13['location'] = 'p13'
-p14 = row1_front[['time', 'row1f_p4_630', 'row1f_p4_800']].copy(deep=True)
+
+p14 = row1_front[['time', 'row1f_p4_630', 'row1f_p4_800', 'r1f_p4_ndvi']].copy(deep=True)
 p14.rename(columns={'row1f_p4_630':'630nm', 'row1f_p4_800':'800nm', 'r1f_p4_ndvi':'ndvi'}, inplace=True)
 p14['location'] = 'p13'
+
 p15 = row1_front[['time', 'row1f_p5_targ', 'row1f_p5_body']].copy(deep=True)
 p15.rename(columns={'row1f_p5_targ':'temp_targ', 'row1f_p5_body':'temp_body'}, inplace=True)
 p15['location'] = 'p13'
+row1_front.to_csv('row1_front.csv')
 row1f = p11.append(p12, ignore_index=True)
 row1f = row1f.append(p13, ignore_index=True)
 row1f = row1f.append(p14, ignore_index=True)
 row1f = row1f.append(p15, ignore_index=True)
 row1f.to_csv('row1f.tsv', index=False, na_rep='#N/A', sep='\t')
-
-
-# In[33]:
-
-
-p2.rename(columns={'row1f_p2_vwc':'vwc', 'row1f_p2_temp':'temp', 'row1f_p2_ec':'ec'}, inplace=True)
-p2.head()
 
 
 # In[4]:
@@ -295,8 +317,8 @@ row9.head()
 # allrows = pd.merge(left=allrows, right=row8, how='left', on='time')
 # allrows = pd.merge(left=allrows, right=row9, how='left', on='time')
 # allrows.drop(labels=['location_x','location_y'], axis=1, inplace=True)
-allrows.to_csv('allrows.csv', index=False, na_rep='0')
-allrows.head()
+# allrows.to_csv('allrows.csv', index=False, na_rep='0')
+# allrows.head()
 
 
 # In[ ]:
