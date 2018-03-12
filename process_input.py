@@ -1,7 +1,8 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
+
 
 import datetime
 import os
@@ -13,33 +14,18 @@ import pandas as pd
 os.chdir('data/')
 
 
-# Open and save each of the data files prior to running this script. The software that outputs these files doesn't properly initialize the file, resulting in the file header indicating a data collection called the SSCS (Short Sector Container Stream) is empty, but the SSAT (Short Sector Allocation Table) used to access that collection is not empty.
+# Use Excel to open and save each of the data files prior to running this script. The software that outputs these files doesn't properly initialize the file, resulting in the file header indicating a data collection called the SSCS (Short Sector Container Stream) is empty, but the SSAT (Short Sector Allocation Table) used to access that collection is not empty.
 
-# In[2]:
+# In[ ]:
 
+
+outputIntermediateFiles = False
 
 def determine_activeflow(row):
     if (row['low'] != 0 or row['full'] != 0 or row['high'] != 0):
         return True
-row1_back = pd.read_excel(io='Row1Back 18Jan18-1421.xls',
-                          sheetname=0,
-                          header=None,
-                          skiprows=[0,1,2],
-                          names=['time', 'low', 'full', 'high'],
-                          usecols=[0,1,2,3],
-                          converters={'0':datetime,'1':np.int32,'2':np.int32,'3':np.int32})
-row1_back['location'] = 'row1_back'
-row1_back['activeflow'] = row1_back.apply(determine_activeflow, axis=1)
 
-sums = pd.DataFrame({'low':[np.sum(row1_back['low'])],
-                     'full':[np.sum(row1_back['full'])],
-                     'high':[np.sum(row1_back['high'])]
-                    })
-
-
-# In[3]:
-
-
+print('building treatment frame')
 treatment = pd.DataFrame({
     'location':['p11','p12','p13',
                 'p21','p22','p23',
@@ -69,11 +55,34 @@ treatment = pd.DataFrame({
                             'low','high','high',
                             'high','full','full']
 })
+if (outputIntermediateFiles):
+    treatment.to_csv('treatment.tsv', index=False, sep='\t')
 
 
-# In[4]:
+# In[ ]:
 
 
+print('building row1_back frame')
+row1_back = pd.read_excel(io='Row1Back 18Jan18-1421.xls',
+                          sheetname=0,
+                          header=None,
+                          skiprows=[0,1,2],
+                          names=['time', 'low', 'full', 'high'],
+                          usecols=[0,1,2,3],
+                          converters={'0':datetime,'1':np.int32,'2':np.int32,'3':np.int32})
+row1_back['location'] = 'row1_back'
+row1_back['activeflow'] = row1_back.apply(determine_activeflow, axis=1)
+
+sums = pd.DataFrame({'low':[np.sum(row1_back['low'])],
+                     'full':[np.sum(row1_back['full'])],
+                     'high':[np.sum(row1_back['high'])]
+                    })
+
+
+# In[ ]:
+
+
+print('building row1_front frame')
 row1_front = pd.read_excel(io='Row1Frnt 18Jan18-1418.xls',
                            sheetname=0,
                            header=None,
@@ -104,17 +113,21 @@ p14['location'] = 'p13'
 p15 = row1_front[['time', 'row1f_p5_targ', 'row1f_p5_body']].copy(deep=True)
 p15.rename(columns={'row1f_p5_targ':'temp_targ', 'row1f_p5_body':'temp_body'}, inplace=True)
 p15['location'] = 'p13'
-row1_front.to_csv('row1_front.csv')
-row1f = p11.append(p12, ignore_index=True)
-row1f = row1f.append(p13, ignore_index=True)
-row1f = row1f.append(p14, ignore_index=True)
-row1f = row1f.append(p15, ignore_index=True)
-row1f.to_csv('row1f.tsv', index=False, na_rep='#N/A', sep='\t')
+if (outputIntermediateFiles):
+    row1_front.to_csv('row1_front.csv')
+r1f = p11.append(p12, ignore_index=True)
+r1f = r1f.append(p13, ignore_index=True)
+r1f = r1f.append(p14, ignore_index=True)
+r1f = r1f.append(p15, ignore_index=True)
+r1f = pd.merge(left=r1f, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r1f.to_csv('r1f.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[5]:
+# In[ ]:
 
 
+print('building row2 frame')
 row2 = pd.read_excel(io='Row2 18Jan18-1423.xls',
                      sheetname=0,
                      header=None,
@@ -146,17 +159,21 @@ slice4['location'] = 'p23'
 slice5 = row2[['time', 'r2_p5_targ', 'r2_p5_body']].copy(deep=True)
 slice5.rename(columns={'r2_p5_targ':'temp_targ', 'r2_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p23'
-row2.to_csv('row2.csv')
+if (outputIntermediateFiles):
+    row2.to_csv('row2.csv')
 r2 = slice1.append(slice2, ignore_index=True)
 r2 = r2.append(slice3, ignore_index=True)
 r2 = r2.append(slice4, ignore_index=True)
 r2 = r2.append(slice5, ignore_index=True)
-r2.to_csv('r2.tsv', index=False, na_rep='#N/A', sep='\t')
+r2 = pd.merge(left=r2, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r2.to_csv('r2.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[6]:
+# In[ ]:
 
 
+print('building row3 frame')
 row3 = pd.read_excel(io='Row3 18Jan18-1426.xls',
                      sheetname=0,
                      header=None,
@@ -188,17 +205,21 @@ slice4['location'] = 'p33'
 slice5 = row3[['time', 'r3_p5_targ', 'r3_p5_body']].copy(deep=True)
 slice5.rename(columns={'r3_p5_targ':'temp_targ', 'r3_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p33'
-row3.to_csv('row3.csv')
+if (outputIntermediateFiles):
+    row3.to_csv('row3.csv')
 r3 = slice1.append(slice2, ignore_index=True)
 r3 = r3.append(slice3, ignore_index=True)
 r3 = r3.append(slice4, ignore_index=True)
 r3 = r3.append(slice5, ignore_index=True)
-r3.to_csv('r3.tsv', index=False, na_rep='#N/A', sep='\t')
+r3 = pd.merge(left=r3, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r3.to_csv('r3.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[7]:
+# In[ ]:
 
 
+print('building row4_back frame')
 row4_back = pd.read_excel(io='Row4Back 18Jan18-1430.xls',
                       sheetname=0,
                       header=None,
@@ -230,17 +251,21 @@ slice4['location'] = 'p43'
 slice5 = row4_back[['time', 'r4b_p5_pot', 'r4b_p5_temp']].copy(deep=True)
 slice5.rename(columns={'r4b_p5_pot':'pot_300', 'r4b_p5_temp':'temp_soil_300'}, inplace=True)
 slice5['location'] = 'p43'
-row4_back.to_csv('row4_back.csv')
+if (outputIntermediateFiles):
+    row4_back.to_csv('row4_back.csv')
 r4b = slice1.append(slice2, ignore_index=True)
 r4b = r4b.append(slice3, ignore_index=True)
 r4b = r4b.append(slice4, ignore_index=True)
 r4b = r4b.append(slice5, ignore_index=True)
-r4b.to_csv('r4b.tsv', index=False, na_rep='#N/A', sep='\t')
+r4b = pd.merge(left=r4b, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r4b.to_csv('r4b.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[8]:
+# In[ ]:
 
 
+print('building row4_front frame')
 row4_front = pd.read_excel(io='Row4Frnt 18Jan18-1428.xls',
                            sheetname=0,
                            header=None,
@@ -272,17 +297,21 @@ slice4['location'] = 'p43'
 slice5 = row4_front[['time', 'r4f_p5_targ', 'r4f_p5_body']].copy(deep=True)
 slice5.rename(columns={'r4f_p5_targ':'temp_targ', 'r4f_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p43'
-row4_front.to_csv('row4_front.csv')
+if (outputIntermediateFiles):
+    row4_front.to_csv('row4_front.csv')
 r4f = slice1.append(slice2, ignore_index=True)
 r4f = r4f.append(slice3, ignore_index=True)
 r4f = r4f.append(slice4, ignore_index=True)
 r4f = r4f.append(slice5, ignore_index=True)
-r4f.to_csv('r4f.tsv', index=False, na_rep='#N/A', sep='\t')
+r4f = pd.merge(left=r4f, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r4f.to_csv('r4f.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[9]:
+# In[ ]:
 
 
+print('building row5_back frame')
 row5_back = pd.read_excel(io='Row5Back 18Jan18-1435.xls',
                           sheetname=0,
                           header=None,
@@ -314,17 +343,21 @@ slice4['location'] = 'p53'
 slice5 = row5_back[['time', 'r5b_p5_pot', 'r5b_p5_temp']].copy(deep=True)
 slice5.rename(columns={'r5b_p5_pot':'pot_300', 'r5b_p5_temp':'temp_soil_300'}, inplace=True)
 slice5['location'] = 'p53'
-row5_back.to_csv('row5_back.csv')
+if (outputIntermediateFiles):
+    row5_back.to_csv('row5_back.csv')
 r5b = slice1.append(slice2, ignore_index=True)
 r5b = r5b.append(slice3, ignore_index=True)
 r5b = r5b.append(slice4, ignore_index=True)
 r5b = r5b.append(slice5, ignore_index=True)
-r5b.to_csv('r5b.tsv', index=False, na_rep='#N/A', sep='\t')
+r5b = pd.merge(left=r5b, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r5b.to_csv('r5b.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[10]:
+# In[ ]:
 
 
+print('building row5_front frame')
 row5_front = pd.read_excel(io='Row5Frnt 18Jan18-1432.xls',
                            sheetname=0,
                            header=None,
@@ -356,17 +389,21 @@ slice4['location'] = 'p53'
 slice5 = row5_front[['time', 'r5f_p5_targ', 'r5f_p5_body']].copy(deep=True)
 slice5.rename(columns={'r5f_p5_targ':'temp_targ', 'r5f_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p53'
-row5_front.to_csv('row5_front.csv')
+if (outputIntermediateFiles):
+    row5_front.to_csv('row5_front.csv')
 r5f = slice1.append(slice2, ignore_index=True)
 r5f = r5f.append(slice3, ignore_index=True)
 r5f = r5f.append(slice4, ignore_index=True)
 r5f = r5f.append(slice5, ignore_index=True)
-r5f.to_csv('r5f.tsv', index=False, na_rep='#N/A', sep='\t')
+r5f = pd.merge(left=r5f, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r5f.to_csv('r5f.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[11]:
+# In[ ]:
 
 
+print('building row6_back frame')
 row6_back = pd.read_excel(io='Row6Back 18Jan18-1439.xls',
                           sheetname=0,
                           header=None,
@@ -398,17 +435,21 @@ slice4['location'] = 'p63'
 slice5 = row6_back[['time', 'r6b_p5_pot', 'r6b_p5_temp']].copy(deep=True)
 slice5.rename(columns={'r6b_p5_pot':'pot_300', 'r6b_p5_temp':'temp_soil_300'}, inplace=True)
 slice5['location'] = 'p63'
-row6_back.to_csv('row6_back.csv')
+if (outputIntermediateFiles):
+    row6_back.to_csv('row6_back.csv')
 r6b = slice1.append(slice2, ignore_index=True)
 r6b = r6b.append(slice3, ignore_index=True)
 r6b = r6b.append(slice4, ignore_index=True)
 r6b = r6b.append(slice5, ignore_index=True)
-r6b.to_csv('r6b.tsv', index=False, na_rep='#N/A', sep='\t')
+r6b = pd.merge(left=r6b, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r6b.to_csv('r6b.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[12]:
+# In[ ]:
 
 
+print('building row6_front frame')
 row6_front = pd.read_excel(io='Row6Frnt 18Jan18-1437.xls',
                            sheetname=0,
                            header=None,
@@ -440,17 +481,21 @@ slice4['location'] = 'p83'
 slice5 = row6_front[['time', 'r6f_p5_targ', 'r6f_p5_body']].copy(deep=True)
 slice5.rename(columns={'r6f_p5_targ':'temp_targ', 'r6f_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p83'
-row6_front.to_csv('row6_front.csv')
+if (outputIntermediateFiles):
+    row6_front.to_csv('row6_front.csv')
 r6f = slice1.append(slice2, ignore_index=True)
 r6f = r6f.append(slice3, ignore_index=True)
 r6f = r6f.append(slice4, ignore_index=True)
 r6f = r6f.append(slice5, ignore_index=True)
-r6f.to_csv('r6f.tsv', index=False, na_rep='#N/A', sep='\t')
+r6f = pd.merge(left=r6f, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r6f.to_csv('r6f.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[13]:
+# In[ ]:
 
 
+print('building row7 frame')
 row7 = pd.read_excel(io='Row7 18Jan18-1441.xls',
                      sheetname=0,
                      header=None,
@@ -482,17 +527,21 @@ slice4['location'] = 'p83'
 slice5 = row7[['time', 'r7_p5_targ', 'r7_p5_body']].copy(deep=True)
 slice5.rename(columns={'r7_p5_targ':'temp_targ', 'r7_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p83'
-row7.to_csv('row7.csv')
+if (outputIntermediateFiles):
+    row7.to_csv('row7.csv')
 r7 = slice1.append(slice2, ignore_index=True)
 r7 = r7.append(slice3, ignore_index=True)
 r7 = r7.append(slice4, ignore_index=True)
 r7 = r7.append(slice5, ignore_index=True)
-r7.to_csv('r7.tsv', index=False, na_rep='#N/A', sep='\t')
+r7 = pd.merge(left=r7, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r7.to_csv('r7.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[14]:
+# In[ ]:
 
 
+print('building row8 frame')
 row8 = pd.read_excel(io='Row8 18Jan18-1443.xls',
                      sheetname=0,
                      header=None,
@@ -524,17 +573,21 @@ slice4['location'] = 'p83'
 slice5 = row8[['time', 'r8_p5_targ', 'r8_p5_body']].copy(deep=True)
 slice5.rename(columns={'r8_p5_targ':'temp_targ', 'r8_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p83'
-row8.to_csv('row8.csv')
+if (outputIntermediateFiles):
+    row8.to_csv('row8.csv')
 r8 = slice1.append(slice2, ignore_index=True)
 r8 = r8.append(slice3, ignore_index=True)
 r8 = r8.append(slice4, ignore_index=True)
 r8 = r8.append(slice5, ignore_index=True)
-r8.to_csv('r8.tsv', index=False, na_rep='#N/A', sep='\t')
+r8 = pd.merge(left=r8, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r8.to_csv('r8.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
-# In[15]:
+# In[ ]:
 
 
+print('building row9 frame')
 row9 = pd.read_excel(io='Row9 18Jan18-1445.xls',
                      sheetname=0,
                      header=None,
@@ -566,35 +619,32 @@ slice4['location'] = 'p93'
 slice5 = row9[['time', 'r9_p5_targ', 'r9_p5_body']].copy(deep=True)
 slice5.rename(columns={'r9_p5_targ':'temp_targ', 'r9_p5_body':'temp_body'}, inplace=True)
 slice5['location'] = 'p93'
-row9.to_csv('row9.csv')
+if (outputIntermediateFiles):
+    row9.to_csv('row9.csv')
 r9 = slice1.append(slice2, ignore_index=True)
 r9 = r9.append(slice3, ignore_index=True)
 r9 = r9.append(slice4, ignore_index=True)
 r9 = r9.append(slice5, ignore_index=True)
-r9.to_csv('r9.tsv', index=False, na_rep='#N/A', sep='\t')
-
-
-# In[16]:
-
-
-# allrows = pd.merge(left=row1_front, right=row2, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row3, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row4_back, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row4_front, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row5_back, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row5_front, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row6_back, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row6_front, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row7, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row8, how='left', on='time')
-# allrows = pd.merge(left=allrows, right=row9, how='left', on='time')
-# allrows.drop(labels=['location_x','location_y'], axis=1, inplace=True)
-# allrows.to_csv('allrows.csv', index=False, na_rep='0')
-# allrows.head()
+r9 = pd.merge(left=r9, right=treatment, how='inner', on='location')
+if (outputIntermediateFiles):
+    r9.to_csv('r9.tsv', index=False, na_rep='#N/A', sep='\t')
 
 
 # In[ ]:
 
 
-
+print('building allrows frame')
+allrows = r1f.append(r2, ignore_index=True)
+allrows = allrows.append(r3, ignore_index=True)
+allrows = allrows.append(r4b, ignore_index=True)
+allrows = allrows.append(r4f, ignore_index=True)
+allrows = allrows.append(r5b, ignore_index=True)
+allrows = allrows.append(r5f, ignore_index=True)
+allrows = allrows.append(r6b, ignore_index=True)
+allrows = allrows.append(r6f, ignore_index=True)
+allrows = allrows.append(r7, ignore_index=True)
+allrows = allrows.append(r8, ignore_index=True)
+allrows = allrows.append(r9, ignore_index=True)
+allrows.to_csv('allrows.tsv', index=False, na_rep='#N/A', sep='\t')
+print('done')
 
