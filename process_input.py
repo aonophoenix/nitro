@@ -121,7 +121,7 @@ r1f = r1f.append(p14, ignore_index=True)
 r1f = r1f.append(p15, ignore_index=True)
 r1f = pd.merge(left=r1f, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r1f.to_csv('r1f.tsv', index=False, na_rep='#N/A', sep='\t')
+    r1f.to_csv('r1f.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -167,7 +167,7 @@ r2 = r2.append(slice4, ignore_index=True)
 r2 = r2.append(slice5, ignore_index=True)
 r2 = pd.merge(left=r2, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r2.to_csv('r2.tsv', index=False, na_rep='#N/A', sep='\t')
+    r2.to_csv('r2.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -213,7 +213,7 @@ r3 = r3.append(slice4, ignore_index=True)
 r3 = r3.append(slice5, ignore_index=True)
 r3 = pd.merge(left=r3, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r3.to_csv('r3.tsv', index=False, na_rep='#N/A', sep='\t')
+    r3.to_csv('r3.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -259,7 +259,7 @@ r4b = r4b.append(slice4, ignore_index=True)
 r4b = r4b.append(slice5, ignore_index=True)
 r4b = pd.merge(left=r4b, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r4b.to_csv('r4b.tsv', index=False, na_rep='#N/A', sep='\t')
+    r4b.to_csv('r4b.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -305,7 +305,7 @@ r4f = r4f.append(slice4, ignore_index=True)
 r4f = r4f.append(slice5, ignore_index=True)
 r4f = pd.merge(left=r4f, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r4f.to_csv('r4f.tsv', index=False, na_rep='#N/A', sep='\t')
+    r4f.to_csv('r4f.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -351,7 +351,7 @@ r5b = r5b.append(slice4, ignore_index=True)
 r5b = r5b.append(slice5, ignore_index=True)
 r5b = pd.merge(left=r5b, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r5b.to_csv('r5b.tsv', index=False, na_rep='#N/A', sep='\t')
+    r5b.to_csv('r5b.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -397,7 +397,7 @@ r5f = r5f.append(slice4, ignore_index=True)
 r5f = r5f.append(slice5, ignore_index=True)
 r5f = pd.merge(left=r5f, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r5f.to_csv('r5f.tsv', index=False, na_rep='#N/A', sep='\t')
+    r5f.to_csv('r5f.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -443,7 +443,7 @@ r6b = r6b.append(slice4, ignore_index=True)
 r6b = r6b.append(slice5, ignore_index=True)
 r6b = pd.merge(left=r6b, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r6b.to_csv('r6b.tsv', index=False, na_rep='#N/A', sep='\t')
+    r6b.to_csv('r6b.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -489,7 +489,7 @@ r6f = r6f.append(slice4, ignore_index=True)
 r6f = r6f.append(slice5, ignore_index=True)
 r6f = pd.merge(left=r6f, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r6f.to_csv('r6f.tsv', index=False, na_rep='#N/A', sep='\t')
+    r6f.to_csv('r6f.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -535,7 +535,7 @@ r7 = r7.append(slice4, ignore_index=True)
 r7 = r7.append(slice5, ignore_index=True)
 r7 = pd.merge(left=r7, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r7.to_csv('r7.tsv', index=False, na_rep='#N/A', sep='\t')
+    r7.to_csv('r7.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -581,7 +581,7 @@ r8 = r8.append(slice4, ignore_index=True)
 r8 = r8.append(slice5, ignore_index=True)
 r8 = pd.merge(left=r8, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r8.to_csv('r8.tsv', index=False, na_rep='#N/A', sep='\t')
+    r8.to_csv('r8.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -627,12 +627,12 @@ r9 = r9.append(slice4, ignore_index=True)
 r9 = r9.append(slice5, ignore_index=True)
 r9 = pd.merge(left=r9, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-    r9.to_csv('r9.tsv', index=False, na_rep='#N/A', sep='\t')
+    r9.to_csv('r9.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
 
-
+os.chdir('../results')
 print('building allrows frame')
 allrows = r1f.append(r2, ignore_index=True)
 allrows = allrows.append(r3, ignore_index=True)
@@ -645,6 +645,6 @@ allrows = allrows.append(r6f, ignore_index=True)
 allrows = allrows.append(r7, ignore_index=True)
 allrows = allrows.append(r8, ignore_index=True)
 allrows = allrows.append(r9, ignore_index=True)
-allrows.to_csv('allrows.tsv', index=False, na_rep='#N/A', sep='\t')
+allrows.to_csv('allrows.tsv', index=False, na_rep='N/A', sep='\t')
 print('done')
 

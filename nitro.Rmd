@@ -1,0 +1,103 @@
+---
+title: "NITRO"
+author: "Hayley Mangleson & Justin Shattuck"
+date: "3/28/2018"
+output: html_document
+# runtime: shiny
+---
+
+Run some python to clean up the filenames
+```{python python.reticulate=FALSE}
+import os
+from os.path import isfile, join
+import re
+current = os.getcwd()
+# print(current)
+os.chdir('./data/test/') ###modify for prod
+p = re.compile('.*\.csv$', re.IGNORECASE)
+files = [f for f in os.listdir('.') if (isfile(join('.', f)) and p.match(f))]
+# print(files)
+p = re.compile('(^row\d[a-z]{0,4})', re.IGNORECASE)
+counter = 0
+for f in files:
+  m = p.match(f)
+  if m != None:
+    os.rename(f, m.group().lower()[0:5] + '.csv')
+    counter += 1
+print('renamed ' + str(counter) + ' files')
+```
+
+
+Load necessary libraries for data tidying (install any that are missing).
+```{r echo=FALSE}
+if(!"readr" %in% rownames(installed.packages())) {
+  install.packages("readr", repos="http://cran.us.r-project.org")
+  print("installed readr")
+} else {
+  print("readr is already installed")
+}
+if(!"tidyr" %in% rownames(installed.packages())) {
+  install.packages("tidyr", repos="http://cran.us.r-project.org")
+  print("installed tidyr")
+} else {
+  print("tidyr is already installed")
+}
+if(!"ggplot2" %in% rownames(installed.packages())) {
+  install.packages("ggplot2", repos="http://cran.us.r-project.org")
+  print("installed ggplot")
+} else {
+  print("ggplot2 is already installed")
+}
+# if(!"rJava" %in% rownames(installed.packages())) {
+#   install.packages("rJava", repos="http://cran.us.r-project.org", type="source")
+#   print("installed rJava")
+# } else {
+#   print("rJava is already installed")
+# }
+# if(!"XLConnect" %in% rownames(installed.packages())) {
+#   install.packages("XLConnect", repos="http://cran.us.r-project.org")
+#   print("installed XLConnect")
+# } else {
+#   print("XLConnect is already installed")
+# }
+
+# dplyr
+# stringr
+
+# dyn.load('/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/jre/lib/server/libjvm.dylib')
+# require(rJava)
+
+
+  
+print("loading libraries")
+library("readr")
+library("tidyr")
+library("rJava")
+# library("XLConnect")
+```
+
+
+Choose a variable to plot:
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+setwd("./data/test/")
+row1f <- read_csv(file = "row1f.csv", col_names = FALSE, skip = 3, col_types = c(col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double()), na = "")
+
+names(row1f) <- c("new_name", "another_new_name")
+sapply(row1f, typeof)
+# selectInput("data", "", c("co2", "lh"))
+
+```
+
+```{r}
+
+
+
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
