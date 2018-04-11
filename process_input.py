@@ -45,15 +45,15 @@ treatment = pd.DataFrame({
                          'optimum','excessive','deficient',
                          'optimum','deficient','excessive',
                          'excessive','optimum','deficient'],
-    'irrigation_treatment':['full','high','high',
-                            'low','high','low',
-                            'full','low','full',
-                            'high','low','full',
-                            'low','high','high',
-                            'full','full','low',
+    'irrigation_treatment':['low','high','high',
+                            'full','high','full',
                             'low','full','low',
-                            'low','high','high',
-                            'high','full','full']
+                            'high','full','low',
+                            'full','high','high',
+                            'low','low','full',
+                            'full','low','full',
+                            'full','high','high',
+                            'high','low','low']
 })
 if (outputIntermediateFiles):
     treatment.to_csv('treatment.tsv', index=False, sep='\t')
