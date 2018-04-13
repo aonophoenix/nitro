@@ -84,7 +84,7 @@ sums = pd.DataFrame({'low':[np.sum(row1_back['low'])],
 
 print('building row1_front frame')
 row1_front = pd.read_excel(io='Row1Frnt 18Jan18-1418.xls',
-                           sheetname=0,
+                           sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
                            names=['time', 
@@ -134,7 +134,7 @@ if (outputIntermediateFiles):
 
 print('building row2 frame')
 row2 = pd.read_excel(io='Row2 18Jan18-1423.xls',
-                     sheetname=0,
+                     sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
                      names=['time', 
@@ -185,7 +185,7 @@ if (outputIntermediateFiles):
 
 print('building row3 frame')
 row3 = pd.read_excel(io='Row3 18Jan18-1426.xls',
-                     sheetname=0,
+                     sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
                      names=['time', 
@@ -236,7 +236,7 @@ if (outputIntermediateFiles):
 
 print('building row4_back frame')
 row4_back = pd.read_excel(io='Row4Back 18Jan18-1430.xls',
-                      sheetname=0,
+                      sheet_name=0,
                       header=None,
                       skiprows=[0,1,2],
                       names=['time', 
@@ -287,7 +287,7 @@ if (outputIntermediateFiles):
 
 print('building row4_front frame')
 row4_front = pd.read_excel(io='Row4Frnt 18Jan18-1428.xls',
-                           sheetname=0,
+                           sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
                            names=['time', 
@@ -338,7 +338,7 @@ if (outputIntermediateFiles):
 
 print('building row5_back frame')
 row5_back = pd.read_excel(io='Row5Back 18Jan18-1435.xls',
-                          sheetname=0,
+                          sheet_name=0,
                           header=None,
                           skiprows=[0,1,2],
                           names=['time', 
@@ -389,7 +389,7 @@ if (outputIntermediateFiles):
 
 print('building row5_front frame')
 row5_front = pd.read_excel(io='Row5Frnt 18Jan18-1432.xls',
-                           sheetname=0,
+                           sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
                            names=['time', 
@@ -440,7 +440,7 @@ if (outputIntermediateFiles):
 
 print('building row6_back frame')
 row6_back = pd.read_excel(io='Row6Back 18Jan18-1439.xls',
-                          sheetname=0,
+                          sheet_name=0,
                           header=None,
                           skiprows=[0,1,2],
                           names=['time', 
@@ -491,7 +491,7 @@ if (outputIntermediateFiles):
 
 print('building row6_front frame')
 row6_front = pd.read_excel(io='Row6Frnt 18Jan18-1437.xls',
-                           sheetname=0,
+                           sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
                            names=['time', 
@@ -504,27 +504,27 @@ row6_front = pd.read_excel(io='Row6Frnt 18Jan18-1437.xls',
 
 slice1 = row6_front[['time', 'r6f_p1_vwc', 'r6f_p1_temp', 'r6f_p1_ec']].copy(deep=True)
 slice1.rename(columns={'r6f_p1_vwc':'vwc_64', 'r6f_p1_temp':'temp_soil_64', 'r6f_p1_ec':'ec_64'}, inplace=True)
-slice1['location'] = 'p81'
+slice1['location'] = 'p61'
 slice1['measurement'] = slice1.index
 
 slice2 = row6_front[['time', 'r6f_p2_vwc', 'r6f_p2_temp', 'r6f_p2_ec']].copy(deep=True)
 slice2.rename(columns={'r6f_p2_vwc':'vwc_64', 'r6f_p2_temp':'temp_soil_64', 'r6f_p2_ec':'ec_64'}, inplace=True)
-slice2['location'] = 'p82'
+slice2['location'] = 'p62'
 slice2['measurement'] = slice2.index
 
 slice3 = row6_front[['time', 'r6f_p3_vwc', 'r6f_p3_temp', 'r6f_p3_ec']].copy(deep=True)
 slice3.rename(columns={'r6f_p3_vwc':'vwc_64', 'r6f_p3_temp':'temp_soil_64', 'r6f_p3_ec':'ec_64'}, inplace=True)
-slice3['location'] = 'p83'
+slice3['location'] = 'p63'
 slice3['measurement'] = slice3.index
 
 slice4 = row6_front[['time', 'r6f_p4_630', 'r6f_p4_800', 'r6f_p4_ndvi']].copy(deep=True)
 slice4.rename(columns={'r6f_p4_630':'630nm', 'r6f_p4_800':'800nm', 'r6f_p4_ndvi':'ndvi'}, inplace=True)
-slice4['location'] = 'p83'
+slice4['location'] = 'p63'
 slice4['measurement'] = slice4.index
 
 slice5 = row6_front[['time', 'r6f_p5_targ', 'r6f_p5_body']].copy(deep=True)
 slice5.rename(columns={'r6f_p5_targ':'temp_targ', 'r6f_p5_body':'temp_body'}, inplace=True)
-slice5['location'] = 'p83'
+slice5['location'] = 'p63'
 slice5['measurement'] = slice5.index
 if (outputIntermediateFiles):
     row6_front.to_csv('row6_front.csv')
@@ -542,7 +542,7 @@ if (outputIntermediateFiles):
 
 print('building row7 frame')
 row7 = pd.read_excel(io='Row7 18Jan18-1441.xls',
-                     sheetname=0,
+                     sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
                      names=['time', 
@@ -555,27 +555,27 @@ row7 = pd.read_excel(io='Row7 18Jan18-1441.xls',
 
 slice1 = row7[['time', 'r7_p1_vwc', 'r7_p1_temp', 'r7_p1_ec']].copy(deep=True)
 slice1.rename(columns={'r7_p1_vwc':'vwc_64', 'r7_p1_temp':'temp_soil_64', 'r7_p1_ec':'ec_64'}, inplace=True)
-slice1['location'] = 'p81'
+slice1['location'] = 'p71'
 slice1['measurement'] = slice1.index
 
 slice2 = row7[['time', 'r7_p2_vwc', 'r7_p2_temp', 'r7_p2_ec']].copy(deep=True)
 slice2.rename(columns={'r7_p2_vwc':'vwc_64', 'r7_p2_temp':'temp_soil_64', 'r7_p2_ec':'ec_64'}, inplace=True)
-slice2['location'] = 'p82'
+slice2['location'] = 'p72'
 slice2['measurement'] = slice2.index
 
 slice3 = row7[['time', 'r7_p3_vwc', 'r7_p3_temp', 'r7_p3_ec']].copy(deep=True)
 slice3.rename(columns={'r7_p3_vwc':'vwc_64', 'r7_p3_temp':'temp_soil_64', 'r7_p3_ec':'ec_64'}, inplace=True)
-slice3['location'] = 'p83'
+slice3['location'] = 'p73'
 slice3['measurement'] = slice3.index
 
 slice4 = row7[['time', 'r7_p4_630', 'r7_p4_800', 'r7_p4_ndvi']].copy(deep=True)
 slice4.rename(columns={'r7_p4_630':'630nm', 'r7_p4_800':'800nm', 'r7_p4_ndvi':'ndvi'}, inplace=True)
-slice4['location'] = 'p83'
+slice4['location'] = 'p73'
 slice4['measurement'] = slice4.index
 
 slice5 = row7[['time', 'r7_p5_targ', 'r7_p5_body']].copy(deep=True)
 slice5.rename(columns={'r7_p5_targ':'temp_targ', 'r7_p5_body':'temp_body'}, inplace=True)
-slice5['location'] = 'p83'
+slice5['location'] = 'p73'
 slice5['measurement'] = slice5.index
 if (outputIntermediateFiles):
     row7.to_csv('row7.csv')
@@ -593,7 +593,7 @@ if (outputIntermediateFiles):
 
 print('building row8 frame')
 row8 = pd.read_excel(io='Row8 18Jan18-1443.xls',
-                     sheetname=0,
+                     sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
                      names=['time', 
@@ -644,7 +644,7 @@ if (outputIntermediateFiles):
 
 print('building row9 frame')
 row9 = pd.read_excel(io='Row9 18Jan18-1445.xls',
-                     sheetname=0,
+                     sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
                      names=['time', 
