@@ -106,6 +106,29 @@ row1_front = pd.read_excel(io='Row1Frnt 18Jan18-1418.xls',
                                   'row1f_p4_630', 'row1f_p4_800', 'r1f_p4_ndvi',
                                   'row1f_p5_targ', 'row1f_p5_body'],
                            usecols=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14])
+if ((row1_front[196:197]['time'] != '2017-05-10 17:00:00').all()):
+    top = row1_front.loc[0:195,]
+    bottom = row1_front.loc[196:, ]
+    insert = pd.DataFrame({
+        'time':['2017-05-10 17:00:00'],
+        'row1f_p1_vwc':[0],
+        'row1f_p1_temp':[0],
+        'row1f_p1_ec':[0],
+        'row1f_p2_vwc':[0],
+        'row1f_p2_temp':[0],
+        'row1f_p2_ec':[0],
+        'row1f_p3_vwc':[0],
+        'row1f_p3_temp':[0],
+        'row1f_p3_ec':[0],
+        'row1f_p4_630':'',
+        'row1f_p4_800':'',
+        'r1f_p4_ndvi':'',
+        'row1f_p5_targ':'',
+        'row1f_p5_body':''
+    })
+    row1_front = top.append(insert, ignore_index=True)
+    row1_front = row1_front.append(bottom, ignore_index=True)
+
 slice1 = row1_front[['time', 'row1f_p1_vwc', 'row1f_p1_temp', 'row1f_p1_ec']].copy(deep=True)
 slice1.rename(columns={'row1f_p1_vwc':'vwc_64', 'row1f_p1_temp':'temp_soil_64', 'row1f_p1_ec':'ec_64'}, inplace=True)
 slice1['location'] = 'p11'
@@ -376,7 +399,7 @@ r4f = r4f.append(slice3, ignore_index=True)
 # r4f = r4f.append(slice5, ignore_index=True)
 r4f = pd.merge(left=r4f, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-  r4f.to_csv('r4f.tsv', index=False, na_rep='N/A', sep='\t')
+    r4f.to_csv('r4f.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -447,7 +470,7 @@ if (outputIntermediateFiles):
 # r5b = r5b.append(slice5, ignore_index=True)
 # r5b = pd.merge(left=row5_back, right=treatment, how='inner', on='location')
 if (outputIntermediateFiles):
-  r5b.to_csv('r5b.tsv', index=False, na_rep='N/A', sep='\t')
+    r5b.to_csv('r5b.tsv', index=False, na_rep='N/A', sep='\t')
 
 
 # In[ ]:
@@ -671,6 +694,28 @@ row7 = pd.read_excel(io='Row7 18Jan18-1441.xls',
                             'r7_p4_630', 'r7_p4_800', 'r7_p4_ndvi',
                             'r7_p5_targ', 'r7_p5_body'],
                      usecols=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14])
+if ((row7[526:527]['time'] != '2017-05-24 11:00:00').all()):
+    top = row7.loc[0:525,]
+    bottom = row7.loc[526:, ]
+    insert = pd.DataFrame({
+        'time':['2017-05-24 11:00:00'],
+        'r7_p1_vwc':[0],
+        'r7_p1_temp':[0],
+        'r7_p1_ec':[0],
+        'r7_p2_vwc':[0],
+        'r7_p2_temp':[0],
+        'r7_p2_ec':[0],
+        'r7_p3_vwc':[0],
+        'r7_p3_temp':[0],
+        'r7_p3_ec':[0],
+        'r7_p4_630':'',
+        'r7_p4_800':'',
+        'r1f_p4_ndvi':'',
+        'r7_p5_targ':'',
+        'r7_p5_body':''
+    })
+    row7 = top.append(insert, ignore_index=True)
+    row7 = row7.append(bottom, ignore_index=True)
 
 slice1 = row7[['time', 'r7_p1_vwc', 'r7_p1_temp', 'r7_p1_ec']].copy(deep=True)
 slice1.rename(columns={'r7_p1_vwc':'vwc_64', 'r7_p1_temp':'temp_soil_64', 'r7_p1_ec':'ec_64'}, inplace=True)
@@ -816,17 +861,16 @@ os.chdir('../results')
 print('building allrows frame')
 allrows = r1f.append(r2, ignore_index=True)
 allrows = allrows.append(r3, ignore_index=True)
-allrows = allrows.append(r4b, ignore_index=True)
+# allrows = allrows.append(r4b, ignore_index=True)
 allrows = allrows.append(r4f, ignore_index=True)
-allrows = allrows.append(r5b, ignore_index=True)
+# allrows = allrows.append(r5b, ignore_index=True)
 allrows = allrows.append(r5f, ignore_index=True)
-allrows = allrows.append(r6b, ignore_index=True)
+# allrows = allrows.append(r6b, ignore_index=True)
 allrows = allrows.append(r6f, ignore_index=True)
 allrows = allrows.append(r7, ignore_index=True)
 allrows = allrows.append(r8, ignore_index=True)
 allrows = allrows.append(r9, ignore_index=True)
 allrows.to_csv('allrows.tsv', index=False, na_rep='N/A', sep='\t')
-print('done')
 
 
 # In[ ]:
@@ -844,13 +888,15 @@ colcheck = pd.DataFrame({
 })
 colcheck.to_csv('colcheck.csv', index=False)
 if (len(colcheck.drop_duplicates(subset='len', keep='first', inplace=False)) != 2):
-    print('column check failed')
+    print('column check fail')
+else:
+        print('column check success')
 
 
 # In[ ]:
 
 
-
+print('done')
 
 
 # In[ ]:
