@@ -1,103 +1,435 @@
----
-title: "NITRO"
-author: "Hayley Mangleson & Justin Shattuck"
-date: "3/28/2018"
-output: html_document
-# runtime: shiny
----
-
-Run some python to clean up the filenames
-```{python python.reticulate=FALSE}
-import os
-from os.path import isfile, join
-import re
-current = os.getcwd()
-# print(current)
-os.chdir('./data/test/') ###modify for prod
-p = re.compile('.*\.csv$', re.IGNORECASE)
-files = [f for f in os.listdir('.') if (isfile(join('.', f)) and p.match(f))]
-# print(files)
-p = re.compile('(^row\d[a-z]{0,4})', re.IGNORECASE)
-counter = 0
-for f in files:
-  m = p.match(f)
-  if m != None:
-    os.rename(f, m.group().lower()[0:5] + '.csv')
-    counter += 1
-print('renamed ' + str(counter) + ' files')
-```
-
-
-Load necessary libraries for data tidying (install any that are missing).
-```{r echo=FALSE}
-if(!"readr" %in% rownames(installed.packages())) {
-  install.packages("readr", repos="http://cran.us.r-project.org")
-  print("installed readr")
-} else {
-  print("readr is already installed")
-}
-if(!"tidyr" %in% rownames(installed.packages())) {
-  install.packages("tidyr", repos="http://cran.us.r-project.org")
-  print("installed tidyr")
-} else {
-  print("tidyr is already installed")
-}
-if(!"ggplot2" %in% rownames(installed.packages())) {
-  install.packages("ggplot2", repos="http://cran.us.r-project.org")
-  print("installed ggplot")
-} else {
-  print("ggplot2 is already installed")
-}
-# if(!"rJava" %in% rownames(installed.packages())) {
-#   install.packages("rJava", repos="http://cran.us.r-project.org", type="source")
-#   print("installed rJava")
-# } else {
-#   print("rJava is already installed")
-# }
-# if(!"XLConnect" %in% rownames(installed.packages())) {
-#   install.packages("XLConnect", repos="http://cran.us.r-project.org")
-#   print("installed XLConnect")
-# } else {
-#   print("XLConnect is already installed")
-# }
-
-# dplyr
-# stringr
-
-# dyn.load('/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/jre/lib/server/libjvm.dylib')
-# require(rJava)
-
-
-  
-print("loading libraries")
-library("readr")
-library("tidyr")
-library("rJava")
-# library("XLConnect")
-```
-
-
-Choose a variable to plot:
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-setwd("./data/test/")
-row1f <- read_csv(file = "row1f.csv", col_names = FALSE, skip = 3, col_types = c(col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double(),col_double()), na = "")
-
-names(row1f) <- c("new_name", "another_new_name")
-sapply(row1f, typeof)
-# selectInput("data", "", c("co2", "lh"))
-
-```
-
+#__Setup__
+## Set working directory, import libraries, read in data
 ```{r}
-
-
-
+setwd("C:/Users/Ryan/Documents/GitHub/nitro/data")
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(ggfortify)
+library(grid)
+allrows<- read_tsv("C:/Users/Ryan/Documents/GitHub/nitro/data/allrows.tsv")
+weather<-read_tsv("precipitation.tsv.txt")
+weather$time<- as.POSIXct(strptime(weather$time, format = "%m/%d/%Y %H:%M"))
 ```
 
+#__Show precipitation pattern__
+## Isolate drydown period, add cumulative sum column
+```{r}
+weather<- weather %>% filter(time>= "2017-09-23 00:00:00" & time<= "2017-10-16 23:30:30") %>% mutate(cumulative = cumsum(precipitation))
+```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+## Graph cumulative precipitation
+```{r}
+png("Fig0.png", height = 6, width = 6, unit = "in", res=500)
+ggplot(data = weather, aes(x = time, y = cumulative))+
+  geom_area(fill = "lightblue")+
+  labs(x = "", y = "Total Precipitation (mm)")+
+  scale_y_continuous(breaks=seq(0,30,5))
+dev.off()
+```
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+## Total precipitation during drydown
+```{r}
+sum(weather$precipitation)
+```
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+## Isolate drydown period
+```{r}
+dryDownData<- allrows %>% filter(time>= "2017-09-23 00:00:00" & time<= "2017-10-16 23:30:30")
+```
 
+## Check out column names
+```{r}
+names(dryDownData)
+```
+
+## Change columns from character to numeric
+```{r}
+dryDownData$vwc_64<- as.numeric(dryDownData$vwc_64)
+dryDownData$vwc_150<- as.numeric(dryDownData$vwc_150)
+dryDownData$vwc_300<- as.numeric(dryDownData$vwc_300)
+dryDownData$pot_64<- as.numeric(dryDownData$pot_64)
+dryDownData$pot_150<- as.numeric(dryDownData$pot_150)
+dryDownData$pot_300<- as.numeric(dryDownData$pot_300)
+dryDownData$ec_64<- as.numeric(dryDownData$ec_64)
+dryDownData$ec_150<- as.numeric(dryDownData$ec_150)
+dryDownData$ec_300<- as.numeric(dryDownData$ec_150)
+dryDownData$ndvi<- as.numeric(dryDownData$ndvi)
+dryDownData$temp_body<- as.numeric(dryDownData$temp_body)
+```
+
+#__Figure 1__
+## Select measured plots
+```{r}
+plot43Low<- dryDownData %>% filter(location == "p43")
+
+plot53High<- dryDownData %>% filter(location == "p53")
+
+plot63Full<- dryDownData %>% filter(location == "p63")
+```
+
+## Create VWC graphs for each plot
+```{r ggplot}
+vwcLow<- ggplot(plot43Low, aes(x = time))+
+  geom_line(aes(y = vwc_64, color = "64mm"))+
+  geom_line(aes(y = vwc_150, color = "150mm"))+
+  geom_line(aes(y = vwc_300, color = "300mm"))+scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red")) +
+  ylim(0.1, 0.45)+
+  labs(x = "", y = "VWC", color = "Sensor Depth")+ theme(axis.text = element_text(size = 8), axis.title = element_text(size = 10), legend.position = "bottom")+ 
+    scale_color_discrete(breaks=c("64mm","150mm","300mm"))
+
+vwcHigh<- ggplot(plot53High, aes(time))+
+  geom_line(aes(y = vwc_64, color = "64mm"))+
+  geom_line(aes(y = vwc_150, color = "150mm"))+
+  geom_line(aes(y = vwc_300, color = "300mm"))+
+  scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red"))+
+  ylim(0.10, 0.45)+
+  labs(x = "", y = "VWC", color = "Sensor Depth")+ theme(axis.text = element_text(size = 8), axis.title = element_text(size = 10))+
+    scale_color_discrete(breaks=c("64mm","150mm","300mm"))
+
+vwcFull<- ggplot(plot63Full, aes(time))+
+  geom_line(aes(y = vwc_64, color = "64mm"))+
+  geom_line(aes(y = vwc_150, color = "150mm"))+
+  geom_line(aes(y = vwc_300, color = "300mm"))+
+  ylim(0.10, 0.45)+
+  labs(x = "", y = "VWC", color = "Sensor Depth")+
+  scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red")) + theme(axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ 
+    scale_color_discrete(breaks=c("64mm","150mm","300mm"))
+```
+
+## Create AWC graphs for each plot
+```{r}
+wpLow<- ggplot(plot43Low, aes(x = time))+
+  geom_line(aes(y = pot_64, color = "64mm"))+
+  geom_line(aes(y = pot_150, color = "150mm"))+
+  geom_line(aes(y = pot_300, color = "300mm"))+scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red")) +
+  ylim(-200, 0)+
+  labs(x = "", y = "AWC (kPa)", color = "Sensor Depth")+ theme(axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ 
+    scale_color_discrete(breaks=c("64mm","150mm","300mm"))
+
+wpHigh<- ggplot(plot53High, aes(time))+
+  geom_line(aes(y = pot_64, color = "64mm"))+
+  geom_line(aes(y = pot_150, color = "150mm"))+
+  geom_line(aes(y = pot_300, color = "300mm"))+
+  scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red"))+
+  ylim(-200,0)+
+  labs(x = "", y = "AWC (kPa)", color = "Sensor Depth")+ theme(axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ 
+    scale_color_discrete(breaks=c("64mm","150mm","300mm"))
+
+wpFull<- ggplot(plot63Full, aes(time))+
+  geom_line(aes(y = pot_64, color = "64mm"))+
+  geom_line(aes(y = pot_150, color = "150mm"))+
+  geom_line(aes(y = pot_300, color = "300mm"))+
+  labs(x = "", y = "AWC (kPa)", color = "Sensor Depth")+
+  ylim(-200, 0)+
+  scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red")) + theme(axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ 
+    scale_color_discrete(breaks=c("64mm","150mm","300mm"))
+```
+
+## Create EC graphs for each plot (currently unused)
+```{r}
+ecLow<- ggplot(plot43Low, aes(x = time))+
+  geom_line(aes(y = ec_64, color = "64mm"))+
+  geom_line(aes(y = ec_150, color = "150mm"))+
+  geom_line(aes(y = ec_300, color = "300mm"))+scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red")) +
+  ylim(.02, .2)+
+  labs(x = "", y = "kPa", color = "Sensor Depth")+ theme(legend.position = "bottom")
+
+ecHigh<- ggplot(plot53High, aes(time))+ 
+  geom_line(aes(y = ec_64, color = "64mm"))+
+  geom_line(aes(y = ec_150, color = "150mm"))+
+  geom_line(aes(y = ec_300, color = "300mm"))+
+  scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red"))+
+  ylim(.02, .2)+
+  labs(x = "", y = "kPa", color = "Sensor Depth")+ theme(legend.position = "bottom")
+
+ecFull<- ggplot(plot63Full, aes(time))+
+  geom_line(aes(y = ec_64, color = "64mm"))+
+  geom_line(aes(y = ec_150, color = "150mm"))+
+  geom_line(aes(y = ec_300, color = "300mm"))+
+  labs(x = "", y = "kPa", color = "Sensor Depth")+
+  ylim(.02, .2)+
+  scale_colour_manual("", values = c("64mm" = "yellow", "150mm" = "orange", "300mm" = "red")) + theme(legend.position = "bottom")
+```
+
+## Create a shared legend
+```{r}
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+mylegend<-g_legend(vwcLow)
+```
+
+## Write out figure 1
+```{r}
+png("Fig1.png", height = 6, width = 6, unit = "in", res=500)
+grid.arrange(arrangeGrob(arrangeGrob(vwcLow + theme(legend.position = "none"),wpLow+ theme(legend.position = "none"), ncol = 1, top = "Low Irrigation"),arrangeGrob(vwcFull + theme(legend.position = "none"), wpFull+ theme(legend.position = "none"), ncol =1, top = "Full Irrigation"), arrangeGrob(vwcHigh+theme(legend.position = "none"), wpHigh+ theme(legend.position = "none"), ncol = 1, top = "High Irrigation"), nrow = 1), mylegend, nrow = 2, heights = c(30, 1))
+dev.off()
+```
+
+#__Figure 2__
+## Seperate water treatments within excessive nitrogen, get average VWC, combine summary data
+```{r}
+lowWater<-  dryDownData %>% filter(irrigation_treatment == "low" & nitrogen_treament == "excessive") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+fullWater<- dryDownData %>% filter(irrigation_treatment == "full" & nitrogen_treament == "excessive") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+highWater<- dryDownData %>% filter(irrigation_treatment == "high" & nitrogen_treament == "excessive")%>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+
+highNitrogenMeans<- merge(x = lowWater, y = fullWater, by = "time")
+highNitrogenMeans<- merge(x = highNitrogenMeans, y = highWater, by = "time")
+names(highNitrogenMeans)<- c("time", "lowWater", "fullWater", "highWater")
+```
+
+## Graph VWC averages for excessive nitrogen
+```{r}
+highNVWC<- ggplot(highNitrogenMeans, aes(x = time))+
+  geom_line(aes(y = lowWater, color = "low"))+
+  geom_line(aes(y = fullWater, color = "full"))+
+  geom_line(aes(y = highWater, color = "high"))+
+  labs(x = "", y = "Average VWC", title = "Excessive Nitrogen", color = "Irrigation Treatment")+ theme(legend.position = "bottom", axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ scale_color_discrete(breaks=c("low","full","high")) +
+  ylim(0.1, 0.3)
+```
+
+## Seperate water treatments within optimum nitrogen, get average VWC, combine summary data
+```{r}
+lowWater<-  dryDownData %>% filter(irrigation_treatment == "low" & nitrogen_treament == "optimum") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+fullWater<- dryDownData %>% filter(irrigation_treatment == "full" & nitrogen_treament == "optimum") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+highWater<- dryDownData %>% filter(irrigation_treatment == "high" & nitrogen_treament == "optimum")%>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+
+optimumNitrogenMeans<- merge(x = lowWater, y = fullWater, by = "time")
+optimumNitrogenMeans<- merge(x = optimumNitrogenMeans, y = highWater, by = "time")
+names(optimumNitrogenMeans)<- c("time", "lowWater", "fullWater", "highWater")
+```
+
+## Graph VWC averages for optimum nitrogen
+```{r}
+optimumNVWC<- ggplot(optimumNitrogenMeans, aes(x = time))+
+  geom_line(aes(y = lowWater, color = "low"))+
+  geom_line(aes(y = fullWater, color = "full"))+
+  geom_line(aes(y = highWater, color = "high"))+
+  labs(x = "", y = "Average VWC", title = "Optimum Nitrogen", color = "Irrigation Treatment")+ theme(legend.position = "bottom", axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ scale_color_discrete(breaks=c("low","full","high"))+
+  ylim(0.1, 0.3)
+```
+
+## Seperate water treatments within deficient nitrogen, get average VWC, combine summary data
+```{r}
+lowWater<-  dryDownData %>% filter(irrigation_treatment == "low" & nitrogen_treament == "deficient") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+fullWater<- dryDownData %>% filter(irrigation_treatment == "full" & nitrogen_treament == "deficient") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+highWater<- dryDownData %>% filter(irrigation_treatment == "high" & nitrogen_treament == "deficient")%>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+
+deficientNitrogenMeans<- merge(x = lowWater, y = fullWater, by = "time")
+deficientNitrogenMeans<- merge(x = deficientNitrogenMeans, y = highWater, by = "time")
+names(deficientNitrogenMeans)<- c("time", "lowWater", "fullWater", "highWater")
+```
+
+## Graph VWC averages for deficient nitrogen
+```{r}
+deficientNVWC<- ggplot(deficientNitrogenMeans, aes(x = time))+
+  geom_line(aes(y = lowWater, color = "low"))+
+  geom_line(aes(y = fullWater, color = "full"))+
+  geom_line(aes(y = highWater, color = "high"))+
+  labs(x = "", y = "Average VWC", title = "Deficient Nitrogen", color = "Irrigation Treatment") + theme(legend.position = "bottom", axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ scale_color_discrete(breaks=c("low","full","high"))+
+  ylim(0.1, 0.3)
+```
+
+## Create combined legend
+```{r}
+mylegend2<-g_legend(deficientNVWC)
+```
+
+## Write out Figure 2A
+```{r}
+png("Fig2A.png", height = 6, width = 6, unit = "in", res=500)
+grid.arrange(arrangeGrob(deficientNVWC+ theme(legend.position = "none"), optimumNVWC + theme(legend.position = "none"), highNVWC + theme(legend.position = "none")), mylegend2, ncol = 1, heights = c(30, 1))
+dev.off()
+```
+
+## Seperate nitrogen treatments within high water, get average VWC, combine summary data
+```{r}
+deficient<-  dryDownData %>% filter(irrigation_treatment == "high" & nitrogen_treament == "deficient") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+optimum<- dryDownData %>% filter(irrigation_treatment == "high" & nitrogen_treament == "optimum") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+excessive<- dryDownData %>% filter(irrigation_treatment == "high" & nitrogen_treament == "excessive")%>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+
+highWaterMeans<- merge(x = deficient, y = optimum, by = "time")
+highWaterMeans<- merge(x = highWaterMeans, y = excessive, by = "time")
+names(highWaterMeans)<- c("time", "deficient", "optimum", "excessive")
+```
+
+## Graph VWC averages for excessive nitrogen
+```{r}
+highWVWC<- ggplot(highWaterMeans, aes(x = time))+
+  geom_line(aes(y = deficient, color = "deficient"))+
+  geom_line(aes(y = optimum, color = "optimum"))+
+  geom_line(aes(y = excessive, color = "excessive"))+
+  labs(x = "", y = "Average %VWC", title = "High Water", color = "Nitrogen Treatment")+ theme(legend.position = "bottom", axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ scale_color_discrete(breaks=c("deficient","optimum","excessive")) +
+  ylim(0.1, 0.3)
+```
+
+## Seperate water treatments within full water, get average VWC, combine summary data
+```{r}
+deficient<-  dryDownData %>% filter(irrigation_treatment == "full" & nitrogen_treament == "deficient") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+optimum<- dryDownData %>% filter(irrigation_treatment == "full" & nitrogen_treament == "optimum") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+excessive<- dryDownData %>% filter(irrigation_treatment == "full" & nitrogen_treament == "excessive")%>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+
+fullWaterMeans<- merge(x = deficient, y = optimum, by = "time")
+fullWaterMeans<- merge(x = fullWaterMeans, y = excessive, by = "time")
+names(fullWaterMeans)<- c("time", "deficient", "optimum", "excessive")
+```
+
+## Graph VWC averages for full water
+```{r}
+fullWVWC<- ggplot(fullWaterMeans, aes(x = time))+
+  geom_line(aes(y = deficient, color = "deficient"))+
+  geom_line(aes(y = optimum, color = "optimum"))+
+  geom_line(aes(y = excessive, color = "excessive"))+
+  labs(x = "", y = "Average %VWC", title = "Full Water", color = "Nitrogen Treatment")+ theme(legend.position = "bottom", axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ scale_color_discrete(breaks=c("deficient","optimum","excessive")) +
+  ylim(0.1, 0.3)
+```
+
+## Seperate water treatments within low water, get average VWC, combine summary data
+```{r}
+deficient<-  dryDownData %>% filter(irrigation_treatment == "low" & nitrogen_treament == "deficient") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+optimum<- dryDownData %>% filter(irrigation_treatment == "low" & nitrogen_treament == "optimum") %>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+excessive<- dryDownData %>% filter(irrigation_treatment == "low" & nitrogen_treament == "excessive")%>% group_by(time) %>% summarise(mean(vwc_64, na.rm = TRUE))
+
+lowWaterMeans<- merge(x = deficient, y = optimum, by = "time")
+lowWaterMeans<- merge(x = lowWaterMeans, y = excessive, by = "time")
+names(lowWaterMeans)<- c("time", "deficient", "optimum", "excessive")
+```
+
+## Graph VWC averages for low water
+```{r}
+lowWVWC<- ggplot(lowWaterMeans, aes(x = time))+
+  geom_line(aes(y = deficient, color = "deficient"))+
+  geom_line(aes(y = optimum, color = "optimum"))+
+  geom_line(aes(y = excessive, color = "excessive"))+
+  labs(x = "", y = "Average %VWC", title = "Low Water", color = "Nitrogen Treatment")+ theme(legend.position = "bottom", axis.text = element_text(size = 8), axis.title = element_text(size = 10))+ scale_color_discrete(breaks=c("deficient","optimum","excessive")) +
+  ylim(0.1, 0.3)
+```
+
+## Create combined legend
+```{r}
+mylegend3<-g_legend(lowWVWC)
+```
+
+## Write out Figure 2B
+```{r}
+png("Fig2B.png", height = 6, width = 6, unit = "in", res=500)
+grid.arrange(arrangeGrob(lowWVWC+ theme(legend.position = "none"), fullWVWC + theme(legend.position = "none"), highWVWC + theme(legend.position = "none")), mylegend3, ncol = 1, heights = c(30, 1))
+dev.off()
+```
+#__Figure 3__
+## Create new frames for each measured plot
+```{r}
+p13<- dryDownData %>% filter(location == "p13")
+p23<- dryDownData %>% filter(location == "p23")
+p33<- dryDownData %>% filter(location == "p33")
+p43<- dryDownData %>% filter(location == "p43")
+p53<- dryDownData %>% filter(location == "p53")
+p63<- dryDownData %>% filter(location == "p63")
+p73<- dryDownData %>% filter(location == "p73")
+p83<- dryDownData %>% filter(location == "p83")
+p93<- dryDownData %>% filter(location == "p93")
+```
+
+## Visualize all NDVI data for drydown period
+```{r}
+ggplot()+
+  geom_line(data= p13, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p23, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p33, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p43, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p53, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p63, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p73, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p83, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))+
+  geom_line(data= p93, aes(x = time, y = ndvi, color = irrigation_treatment, linetype= nitrogen_treament))
+```
+## Isolate data from the last week of the drydown, only noon measurements
+```{r}
+periodOfInterest<- dryDownData %>% filter(time>= "2017-10-09 00:00:00" & time<= "2017-10-16 23:30:00")
+
+noon<- periodOfInterest %>% filter(grepl("12:00:00",time)) %>% filter(!is.na(ndvi)) 
+noon$nitrogen_treament <- factor(noon$nitrogen_treament, levels = c("deficient", "optimum", "excessive"))
+```
+
+## Read out Figure 3
+```{r}
+png("Fig3.png", height = 6, width = 6, unit = "in", res=500)
+ggplot(noon, aes(x = nitrogen_treament, y = ndvi, group = location, fill = irrigation_treatment, color = nitrogen_treament))+
+  geom_boxplot()+
+  scale_fill_manual(name = "Irrigation Treatment", values = c("grey", "black", "white"), breaks = c("low", "full", "high"))+ 
+  scale_color_manual(name = "", values = c("salmon", "forestgreen", "blue"), breaks = c("", "", ""))+ 
+  labs(x = "Nitrogen Treatment", y = "NDVI")
+dev.off()
+```
+
+#__Figure 4__
+##Visualize canopy temperature data
+```{r}
+ggplot()+
+  geom_line(data = p13, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p23, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p33, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p43, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p53, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p63, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p73, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p83, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))+
+  geom_line(data = p93, aes(x = time, y = temp_body, color = irrigation_treatment, linetype = nitrogen_treament))
+```
+
+## Use noon measurement for last week of drydown, create a table of averages over that time period for each treatment to identify a standard
+```{r}
+noon<- periodOfInterest %>% filter(grepl("12:00:00",time)) %>% filter(!is.na(temp_body))
+
+averages<- noon %>% group_by(irrigation_treatment, nitrogen_treament) %>% summarise(mean(temp_body))
+averages
+```
+
+## Create a new column with selected "standard" treatment (high irrigation and optimum nitrogen), create a new column ("normalized") with all temperature values subtracted from the standard, create factor levels for nitrogen treatment
+```{r}
+highAndOptimum <- noon %>% filter(irrigation_treatment == "high" & nitrogen_treament == "optimum") %>% select(time, temp_body)
+names(highAndOptimum)<- c("time", "standard")
+withStandard<- merge(noon, highAndOptimum, by = "time")
+withStandard<- withStandard %>% select(time, nitrogen_treament, irrigation_treatment, standard, temp_body, location) %>% mutate(normalized = temp_body - standard)
+withStandard$nitrogen_treament<- factor(withStandard$nitrogen_treament, levels = c("deficient", "optimum", "excessive"))
+```
+
+## Read out Figure 4
+```{r}
+png("Fig4.png", height = 6, width = 6, unit = "in", res=500)
+ggplot(withStandard)+
+  geom_boxplot(aes(x = nitrogen_treament, y = normalized, fill = irrigation_treatment, color = nitrogen_treament, group = location))+ 
+  scale_fill_manual(name = "Irrigation Treatment", values = c("grey", "black", "white"), breaks = c("low", "full", "high"))+ 
+  scale_color_manual(name = "", values = c("salmon", "forestgreen", "blue"), breaks = "")+ 
+  labs(x = "Nitrogen Treatment", y = "Degrees above a non-stressed reference (Celsius)")+
+  scale_y_continuous(breaks=seq(-0.5,3,.5))
+dev.off()
+```
+
+#__ANOVA__
+# ANOVA for NDVI and nitrogen treatment
+```{r}
+anovaFit<- aov(ndvi ~ nitrogen_treament, data = periodOfInterest)
+summary(anovaFit)
+```
+# ANOVA for NDVI and irrigation treatment
+```{r}
+anovaFit2<- aov(ndvi ~ irrigation_treatment, data = periodOfInterest)
+summary(anovaFit2)
+```
+
+# ANOVA for canopy temp and nitrogen treatment
+```{r}
+anovaFit3<- aov(normalized ~ nitrogen_treament, data = withStandard)
+summary(anovaFit3)
+```
+# ANOVA for canopy temp and irrigation treatment
+```{r}
+anovaFit4<- aov(normalized ~ irrigation_treatment, data = withStandard)
+summary(anovaFit4)
+```
