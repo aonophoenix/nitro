@@ -70,12 +70,31 @@ treatment = pd.DataFrame({
 if (outputIntermediateFiles):
     treatment.to_csv('treatment.tsv', index=False, sep='\t')
 
+filedict = dict()
+for s in os.listdir():
+    filedict[s.split()[0]] = s
+
+
+# In[ ]:
+
+
+print('preparing precipitation frame')
+precip = pd.read_excel(io='Fall 2017 Drydown Weather Data Atmos 41.xlsx',
+                          sheet_name=0,
+                          header=None,
+                          skiprows=[0,1,2],
+                          names=['time', 'precipitation'],
+                          usecols=[0,2],
+                          converters={'0':datetime,'2':np.int32})
+precip.to_csv('precipitation.tsv.txt', index=False, na_rep='N/A', sep='\t')
+
 
 # In[ ]:
 
 
 print('building row1_back frame')
-row1_back = pd.read_excel(io='Row1Back 18Jan18-1421.xls',
+file = filedict.get('Row1Back')
+row1_back = pd.read_excel(io=file,
                           sheet_name=0,
                           header=None,
                           skiprows=[0,1,2],
@@ -95,7 +114,8 @@ sums = pd.DataFrame({'low':[np.sum(row1_back['low'])],
 
 
 print('building row1_front frame')
-row1_front = pd.read_excel(io='Row1Frnt 18Jan18-1418.xls',
+file = filedict.get('Row1Frnt')
+row1_front = pd.read_excel(io=file,
                            sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
@@ -168,7 +188,8 @@ if (outputIntermediateFiles):
 
 
 print('building row2 frame')
-row2 = pd.read_excel(io='Row2 18Jan18-1423.xls',
+file = filedict.get('Row2')
+row2 = pd.read_excel(io=file,
                      sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
@@ -219,7 +240,8 @@ if (outputIntermediateFiles):
 
 
 print('building row3 frame')
-row3 = pd.read_excel(io='Row3 18Jan18-1426.xls',
+file = filedict.get('Row3')
+row3 = pd.read_excel(io=file,
                      sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
@@ -270,7 +292,8 @@ if (outputIntermediateFiles):
 
 
 print('building row4_back frame')
-row4_back = pd.read_excel(io='Row4Back 18Jan18-1430.xls',
+file = filedict.get('Row4Back')
+row4_back = pd.read_excel(io=file,
                       sheet_name=0,
                       header=None,
                       skiprows=[0,1,2],
@@ -336,7 +359,8 @@ if (outputIntermediateFiles):
 
 
 print('building row4_front frame')
-row4_front = pd.read_excel(io='Row4Frnt 18Jan18-1428.xls',
+file = filedict.get('Row4Frnt')
+row4_front = pd.read_excel(io=file,
                            sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
@@ -406,7 +430,8 @@ if (outputIntermediateFiles):
 
 
 print('building row5_back frame')
-row5_back = pd.read_excel(io='Row5Back 18Jan18-1435.xls',
+file = filedict.get('Row5Back')
+row5_back = pd.read_excel(io=file,
                           sheet_name=0,
                           header=None,
                           skiprows=[0,1,2],
@@ -477,7 +502,8 @@ if (outputIntermediateFiles):
 
 
 print('building row5_front frame')
-row5_front = pd.read_excel(io='Row5Frnt 18Jan18-1432.xls',
+file = filedict.get('Row5Frnt')
+row5_front = pd.read_excel(io=file,
                            sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
@@ -549,7 +575,8 @@ if (outputIntermediateFiles):
 
 
 print('building row6_back frame')
-row6_back = pd.read_excel(io='Row6Back 18Jan18-1439.xls',
+file = filedict.get('Row6Back')
+row6_back = pd.read_excel(io=file,
                           sheet_name=0,
                           header=None,
                           skiprows=[0,1,2],
@@ -615,7 +642,8 @@ if (outputIntermediateFiles):
 
 
 print('building row6_front frame')
-row6_front = pd.read_excel(io='Row6Frnt 18Jan18-1437.xls',
+file = filedict.get('Row6Frnt')
+row6_front = pd.read_excel(io=file,
                            sheet_name=0,
                            header=None,
                            skiprows=[0,1,2],
@@ -683,7 +711,8 @@ if (outputIntermediateFiles):
 
 
 print('building row7 frame')
-row7 = pd.read_excel(io='Row7 18Jan18-1441.xls',
+file = filedict.get('Row7')
+row7 = pd.read_excel(io=file,
                      sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
@@ -756,7 +785,8 @@ if (outputIntermediateFiles):
 
 
 print('building row8 frame')
-row8 = pd.read_excel(io='Row8 18Jan18-1443.xls',
+file = filedict.get('Row8')
+row8 = pd.read_excel(io=file,
                      sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
@@ -807,7 +837,8 @@ if (outputIntermediateFiles):
 
 
 print('building row9 frame')
-row9 = pd.read_excel(io='Row9 18Jan18-1445.xls',
+file = filedict.get('Row9')
+row9 = pd.read_excel(io=file,
                      sheet_name=0,
                      header=None,
                      skiprows=[0,1,2],
